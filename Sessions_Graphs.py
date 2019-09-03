@@ -36,4 +36,10 @@ g = tf.divide(f,e)
 sess = tf.Session() 
 outs = sess.run(g) 
 sess.close() 
+
+#example using fetches
+with tf.Session() as sess:
+    fetches =- [a, b, c, d, e, f]
+    outs = sess.run(fetches)
+
 print("outs = {}".format(outs))
