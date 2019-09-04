@@ -18,6 +18,8 @@ print("\npost run: \n{}".format(post_var))
 
 
 #creating and using placeholders
+#matrix x and vector w created then matrix-multiplied to create vector xwthen added with b
+# maximum value of that vector taken using tf.reduce_max()
 
 x_data = np.random.randn(5,10)
 w_data = np.random.randn(10,1)
