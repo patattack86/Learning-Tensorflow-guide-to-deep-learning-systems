@@ -19,4 +19,6 @@ y_pred = tf.matmul(w,tf.transpose(x)) + b
 #now create our loss function, first example is MSE
 los = tf.reduce_mean(tf.square(y_true-y_pred))
 
+optimizer = tf.train.GradientDescentOptimizer(learning_rate)
 
+train = optimizer.minimize(loss)
