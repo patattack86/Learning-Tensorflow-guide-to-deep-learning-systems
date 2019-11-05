@@ -103,3 +103,37 @@ with tf.name_scope('accuracy'):
     tf.summary.scalar('accuracy', accuracy)
 
 merged = tf.summary.merge_all()
+
+#get a test dataset
+test_data = mnist.test.images[:batch_size].reshape((-1, time_steps, element_size))
+
+test_label = mnist.test.labels[:batch_size]
+
+with tf.Session() as sess:
+    train_writer = tf.summary.FileWriter(LOG_DIR + '/train', graph=tf.get_default_graph())
+    test_writer = tf.summary.FileWriter(LOG_DIR + '/test', graph=tf.get_default_graph())
+
+    sess.run(tf.global_variables_initializer())
+
+    for i in range(10000):
+
+        batch_x, batch_y = mnist.train.next_batch(batch_size)
+        batch_x = batch_x.reshape((batch_size, time_steps, element_size))
+        summary,_ = sess.run([merged,train_step], feed_dict={_inputs:batch_x, y:batch_y})
+
+        train_writer.add_summary(summary, i)
+
+        if i % 1000 == 0:
+            acc,loss, = sess.run([accuracy,cross_entropy],
+                                 feed_dict={_inputs: batch_x, y: batch_y})
+            print ("Iter " + str(i) + ", Minibatch Loss= " + \
+                "{:.6f}".format(loss) + ", Training Accuracy= " + \
+                "{:.5f}".format(acc))
+            if i % 10:
+                summary, acc = sess.run([merged, accuracy], feed_dict={_inputs: test_data,
+                                                                       y: test_label})
+                test_writer.add_summary(summary, i)
+
+        test_acc = sess.run(accuracy, feed_dict={_inputs: test_data, y: test_label})
+
+        print("Test Accuracy:", test_acc)
