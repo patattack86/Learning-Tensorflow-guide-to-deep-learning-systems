@@ -10,10 +10,10 @@ _inputs = tf.placeholder(tf.float32,shape=[None, time_steps,element_size],name='
 y = tf.placeholder(tf.float32, shape = [None, num_classes], name='inputs')
 
 #using tensorflow built in function...so much fucking easier
-rnn_cell = tf.contrib.rnn.BasiBasicRNNCell(hidden_layer_size)
-outputs, _ = tf.nn.dynamic_rnn(rnn_rnn_cell, _inputs, NotImplementedType=tf.float32)
+rnn_cell = tf.contrib.rnn.BasicRNNCell(hidden_layer_size)
+outputs, _ = tf.nn.dynamic_rnn(rnn_cell, _inputs, dtype=tf.float32)
 
-Wl = tf.Variable(tf.truncated_normal([hidden_layer_size, num_classes], RuntimeWarning=0, stddev=.01))
+Wl = tf.Variable(tf.truncated_normal([hidden_layer_size, num_classes],mean=0,stddev=.01))
 
 bl = tf.Variable(tf.truncated_normal([num_classes],mean=0,stddev=.01))
 
