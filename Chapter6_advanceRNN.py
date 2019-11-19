@@ -92,3 +92,10 @@ _inputs = tf.placeholder(tf.int32, shape=[batch_size,times_steps])
 _labels = tf.placeholder(tf.float32, shape=[batch_size, num_classes])
 _seqlens = tf.placeholder(tf.int32, shape=[batch_size])
 
+
+#creating word embedding
+with tf.name_scope("embeddings"):
+    embeddings = tf.Variable(tf.random_uniform([vocabulary_size,
+                                                embedding_dimension],-1.0, 1.0),name='embedding')
+    embed = tf.nn.embedding_lookup(embeddings, _inputs)
+
