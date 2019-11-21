@@ -99,3 +99,27 @@ with tf.name_scope("embeddings"):
                                                 embedding_dimension],-1.0, 1.0),name='embedding')
     embed = tf.nn.embedding_lookup(embeddings, _inputs)
 
+#create the long short term memory celland feed it to a dynamic rnn, give dynamic rnn same sequence lengtyh using 
+#_seqlens defined earlier
+with tf.variable_scope("lstm"):
+    lstm_cell = tf.contrib.rnn.BasicLSTMCell(hidden_layer_size, forget_bias=1.0)
+    outputs, states = tf.nn.dynamic_rnn(lstm_cell, embed, sequence_length = _seqlens, 
+                                        dtype=tf.float32)
+
+    #use dictionar to assign linear layer as key to hidden layer size
+    weights = {
+        'linear_layer': tf.Variable(tf.truncated_normal([hidden_layer_size,
+                                                         num_classes],
+                                                        mean=0,stddev=.01))
+    }
+
+    Biases = {
+        'linear_layer':tf.Variable(tf.truncated_normal([num_classes],
+                                                       mean=0,stddev=.01))
+    }
+
+#take last valid output vector, this is available in states which was returned by dynamic_rnn
+#then pass final output through a sofmax function 
+final_output = tf.matmul(states[1],weights["linear_layer"]) + biases["linear_layer"]
+softmax = tf.nn.softmax_cross_entropy_with_logits(logits = final_output, labels=_labels
+cross_entropy = tf.reduce_mean(softmax)
