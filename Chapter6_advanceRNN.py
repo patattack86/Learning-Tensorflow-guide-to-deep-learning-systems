@@ -123,3 +123,42 @@ with tf.variable_scope("lstm"):
 final_output = tf.matmul(states[1],weights["linear_layer"]) + biases["linear_layer"]
 softmax = tf.nn.softmax_cross_entropy_with_logits(logits = final_output, labels=_labels
 cross_entropy = tf.reduce_mean(softmax)
+
+                                                  #begin training of classification model
+train_step = tf.train.RMSPropOptimizer(0.001, 0.9).minimize(cross_entropy)
+correct_prediction = tf.equal(tf.argmax(_labels,1),tf.argmax(final_output,1))
+accuracy = (tf.reduce_mean(tf.cast(correct_prediction,tf.float32)))*100
+
+#Create sesssion
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+
+    for step in range(1000):
+        x_batch, y_batch, seqlen_batch = get_sentence_batch(batch_size,
+                                                            train_x, train_y,
+                                                            train_seqlens)
+        sess.run(train_step, feed_dict={_inputs: x_batch, _labels: y_batch,
+                                        _seqlens: seqlen_batch})
+
+        if step % 100 == 0:
+            acc = sess.run(accuracy, feed_dict={_inputs: x_batch,
+                                                _labels: y_batch,
+                                                _seqlens: seqlen_batch})
+            print("Accuracy at %d: %.5f" % (step, acc))
+
+    for test_batch in range(5):
+        x_test, y_test, seqlen_test = get_sentence_batch(batch_size,
+                                                         test_x, test_y,
+                                                         test_seqlens)
+        batch_pred, batch_acc = sess.run([tf.argmax(final_output, 1), accuracy],
+                                         feed_dict={_inputs: x_test,
+                                                    _labels: y_test,
+                                                    _seqlens: seqlen_test})
+        print("Test batch accuracy %d: %.5f" % (test_batch, batch_acc))
+
+        output_example = sess.run([outputs], feed_dict={_inputs: x_test,
+                                                    _labels: y_test,
+                                                    _seqlens: seqlen_test})
+        states_example = sess.run([states[1]], feed_dict={_inputs: x_test,
+                                                      _labels: y_test,
+                                                      _seqlens: seqlen_test})
